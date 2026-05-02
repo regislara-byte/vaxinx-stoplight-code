@@ -36,8 +36,10 @@ from logging.handlers import RotatingFileHandler
 from cryptography.fernet import Fernet
 
 # ── Optional YARA import (graceful fallback if not installed) ────────────────
+YARA_AVAILABLE = False
+
 try:
-    import yara
+    import yara  # optional
     YARA_AVAILABLE = True
 except ImportError:
     YARA_AVAILABLE = False
@@ -693,7 +695,7 @@ def main():
         if not FLASK_AVAILABLE:
             log.error("Flask not installed. Run: pip install flask flask-cors")
             sys.exit(1)
-        log.info(f"🌐 Starting VAXINX dashboard at http://{args.host}:{args.port}")
+        log.info(f"Starting VAXINX dashboard at http://{args.host}:{args.port}")
         app = create_app()
         app.run(host=args.host, port=args.port, debug=args.debug, threaded=True)
         return

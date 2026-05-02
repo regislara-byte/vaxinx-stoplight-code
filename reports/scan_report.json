@@ -1,29 +1,37 @@
 {
   "scanner": "VAXINX Stoplight Code Scanner",
-  "version": "1.1-VAULT",
-  "scan_time": "2026-04-29T00:48:15",
-  "target": "D:\\Projects\\vaxinx-stoplight-code\\vaxinx-stoplight-code\\test_lab",
+  "version": "3.0-VAULT",
+  "scan_time": "2026-05-03T00:27:41",
+  "target": "test_lab",
+  "yara_rules": [],
   "summary": {
-    "total_files": 16,
+    "total_files": 14,
+    "skipped_duplicates": 1,
     "green": 7,
-    "yellow": 8,
-    "red": 1,
-    "quarantined": 1,
-    "encrypted_vault_items": 1,
-    "secure_overwrite_success": 1
+    "yellow": 7,
+    "red": 0,
+    "quarantined": 0,
+    "high_entropy_files": 0,
+    "yara_hits": 0,
+    "content_hits_total": 0
   },
   "results": [
     {
-      "original_path": "D:\\Projects\\vaxinx-stoplight-code\\vaxinx-stoplight-code\\test_lab\\echo test",
+      "original_path": "test_lab\\echo test",
       "name": "echo test",
       "extensions": [],
       "file_type": "STANDARD_FILE",
       "size_bytes": 0,
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "entropy": 0.0,
       "score": 5,
       "stoplight": "GREEN",
       "decision": "ALLOW",
       "human_error_risk": "NONE",
+      "byte_signatures": [],
+      "content_hits": [],
+      "yara_matches": [],
+      "archive_depth": 0,
       "malware_hints": [
         "No malware family hint detected"
       ],
@@ -33,7 +41,7 @@
       "quarantine": {
         "status": "NOT_REQUIRED",
         "quarantined_as": null,
-        "message": "No quarantine action needed",
+        "message": "No action needed",
         "encrypted": false,
         "secure_overwrite_attempted": false,
         "secure_overwrite_success": false,
@@ -41,7 +49,7 @@
       }
     },
     {
-      "original_path": "D:\\Projects\\vaxinx-stoplight-code\\vaxinx-stoplight-code\\test_lab\\fake_adware_popup_ads.zip",
+      "original_path": "test_lab\\fake_adware_popup_ads.zip",
       "name": "fake_adware_popup_ads.zip",
       "extensions": [
         ".zip"
@@ -49,20 +57,25 @@
       "file_type": "ARCHIVE_OR_CONTAINER",
       "size_bytes": 50,
       "sha256": "4d6854d28563a301cb6f1fbf8ec7307f41bb2abca808f25c218c05607a677c20",
+      "entropy": 4.6464,
       "score": 20,
       "stoplight": "GREEN",
       "decision": "ALLOW",
       "human_error_risk": "NONE",
+      "byte_signatures": [],
+      "content_hits": [],
+      "yara_matches": [],
+      "archive_depth": 0,
       "malware_hints": [
         "Adware behavior hint"
       ],
       "reasons": [
-        "Archive/container detected: .zip"
+        "Archive: .zip"
       ],
       "quarantine": {
         "status": "NOT_REQUIRED",
         "quarantined_as": null,
-        "message": "No quarantine action needed",
+        "message": "No action needed",
         "encrypted": false,
         "secure_overwrite_attempted": false,
         "secure_overwrite_success": false,
@@ -70,7 +83,7 @@
       }
     },
     {
-      "original_path": "D:\\Projects\\vaxinx-stoplight-code\\vaxinx-stoplight-code\\test_lab\\fake_backdoor_remote_shell.cmd",
+      "original_path": "test_lab\\fake_backdoor_remote_shell.cmd",
       "name": "fake_backdoor_remote_shell.cmd",
       "extensions": [
         ".cmd"
@@ -78,22 +91,27 @@
       "file_type": "SCRIPT_EXECUTION_CAPABLE",
       "size_bytes": 52,
       "sha256": "d6e49026c6415bd4d20144beee18fce4bbd8a7157d60707b639a193335640a49",
+      "entropy": 4.7943,
       "score": 57,
       "stoplight": "YELLOW",
       "decision": "INSPECT",
       "human_error_risk": "NONE",
+      "byte_signatures": [],
+      "content_hits": [],
+      "yara_matches": [],
+      "archive_depth": 0,
       "malware_hints": [
         "Backdoor behavior hint",
         "Script-based malware risk"
       ],
       "reasons": [
-        "Script execution-capable extension detected: .cmd",
-        "Suspicious keyword in filename: backdoor"
+        "Script extension: .cmd",
+        "Suspicious keyword: 'backdoor'"
       ],
       "quarantine": {
         "status": "NOT_REQUIRED",
         "quarantined_as": null,
-        "message": "No quarantine action needed",
+        "message": "No action needed",
         "encrypted": false,
         "secure_overwrite_attempted": false,
         "secure_overwrite_success": false,
@@ -101,40 +119,7 @@
       }
     },
     {
-      "original_path": "D:\\Projects\\vaxinx-stoplight-code\\vaxinx-stoplight-code\\test_lab\\fake_bank_password.exe",
-      "name": "fake_bank_password.exe",
-      "extensions": [
-        ".exe"
-      ],
-      "file_type": "PE_OR_WINDOWS_EXECUTABLE",
-      "size_bytes": 5,
-      "sha256": "f2ca1bb6c7e907d06dafe4687e579fce76b37e4e93b7605022da52e6ccc26fd2",
-      "score": 82,
-      "stoplight": "RED",
-      "decision": "QUARANTINE",
-      "human_error_risk": "PHISHING_LURE",
-      "malware_hints": [
-        "Spyware behavior hint",
-        "Virus/Trojan executable risk"
-      ],
-      "reasons": [
-        "Windows executable-style extension detected: .exe",
-        "Executable extension but PE header not detected or unreadable",
-        "Suspicious keyword in filename: password",
-        "Human behavior risk detected: PHISHING_LURE"
-      ],
-      "quarantine": {
-        "status": "QUARANTINED",
-        "quarantined_as": "D:\\Projects\\vaxinx-stoplight-code\\vaxinx-stoplight-code\\quarantine\\[QUARANTINED]_20260429_004815_fake_bank_password.exe.vxlocked",
-        "message": "Encrypted & moved to VAXINX Quarantine Vault",
-        "encrypted": true,
-        "secure_overwrite_attempted": true,
-        "secure_overwrite_success": true,
-        "vault_extension": ".vxlocked"
-      }
-    },
-    {
-      "original_path": "D:\\Projects\\vaxinx-stoplight-code\\vaxinx-stoplight-code\\test_lab\\fake_invoice_update.zip",
+      "original_path": "test_lab\\fake_invoice_update.zip",
       "name": "fake_invoice_update.zip",
       "extensions": [
         ".zip"
@@ -142,23 +127,28 @@
       "file_type": "ARCHIVE_OR_CONTAINER",
       "size_bytes": 26,
       "sha256": "512ddb8c274eb2fd1a1e4e347ac85a542742873f8a3c9abb343dac9e64edda0b",
+      "entropy": 3.5654,
       "score": 59,
       "stoplight": "YELLOW",
       "decision": "INSPECT",
       "human_error_risk": "FAKE_UPDATE",
+      "byte_signatures": [],
+      "content_hits": [],
+      "yara_matches": [],
+      "archive_depth": 0,
       "malware_hints": [
-        "No malware family hint detected"
+        "Trojan behavior hint"
       ],
       "reasons": [
-        "Archive/container detected: .zip",
-        "Suspicious keyword in filename: invoice",
-        "Suspicious keyword in filename: update",
-        "Human behavior risk detected: FAKE_UPDATE"
+        "Archive: .zip",
+        "Suspicious keyword: 'invoice'",
+        "Suspicious keyword: 'update'",
+        "Social engineering: FAKE_UPDATE"
       ],
       "quarantine": {
         "status": "NOT_REQUIRED",
         "quarantined_as": null,
-        "message": "No quarantine action needed",
+        "message": "No action needed",
         "encrypted": false,
         "secure_overwrite_attempted": false,
         "secure_overwrite_success": false,
@@ -166,7 +156,7 @@
       }
     },
     {
-      "original_path": "D:\\Projects\\vaxinx-stoplight-code\\vaxinx-stoplight-code\\test_lab\\fake_payload.bat",
+      "original_path": "test_lab\\fake_payload.bat",
       "name": "fake_payload.bat",
       "extensions": [
         ".bat"
@@ -174,21 +164,26 @@
       "file_type": "SCRIPT_EXECUTION_CAPABLE",
       "size_bytes": 36,
       "sha256": "499559d35e6e9593ac3e5d9a22665eb7e70f1f8a61bb1fd05ae6ab5915b87afd",
+      "entropy": 4.1598,
       "score": 57,
       "stoplight": "YELLOW",
       "decision": "INSPECT",
       "human_error_risk": "NONE",
+      "byte_signatures": [],
+      "content_hits": [],
+      "yara_matches": [],
+      "archive_depth": 0,
       "malware_hints": [
         "Script-based malware risk"
       ],
       "reasons": [
-        "Script execution-capable extension detected: .bat",
-        "Suspicious keyword in filename: payload"
+        "Script extension: .bat",
+        "Suspicious keyword: 'payload'"
       ],
       "quarantine": {
         "status": "NOT_REQUIRED",
         "quarantined_as": null,
-        "message": "No quarantine action needed",
+        "message": "No action needed",
         "encrypted": false,
         "secure_overwrite_attempted": false,
         "secure_overwrite_success": false,
@@ -196,7 +191,7 @@
       }
     },
     {
-      "original_path": "D:\\Projects\\vaxinx-stoplight-code\\vaxinx-stoplight-code\\test_lab\\fake_ransom_encrypt_locked_payment.txt",
+      "original_path": "test_lab\\fake_ransom_encrypt_locked_payment.txt",
       "name": "fake_ransom_encrypt_locked_payment.txt",
       "extensions": [
         ".txt"
@@ -204,21 +199,26 @@
       "file_type": "STANDARD_FILE",
       "size_bytes": 54,
       "sha256": "4e893fdacf0a51d49e1908caecccb525427355722629af7063c814f8fff6c771",
+      "entropy": 4.7202,
       "score": 24,
       "stoplight": "GREEN",
       "decision": "ALLOW",
       "human_error_risk": "NONE",
+      "byte_signatures": [],
+      "content_hits": [],
+      "yara_matches": [],
+      "archive_depth": 0,
       "malware_hints": [
         "Ransomware behavior hint"
       ],
       "reasons": [
-        "Suspicious keyword in filename: ransom",
-        "Suspicious keyword in filename: encrypt"
+        "Suspicious keyword: 'ransom'",
+        "Suspicious keyword: 'encrypt'"
       ],
       "quarantine": {
         "status": "NOT_REQUIRED",
         "quarantined_as": null,
-        "message": "No quarantine action needed",
+        "message": "No action needed",
         "encrypted": false,
         "secure_overwrite_attempted": false,
         "secure_overwrite_success": false,
@@ -226,7 +226,7 @@
       }
     },
     {
-      "original_path": "D:\\Projects\\vaxinx-stoplight-code\\vaxinx-stoplight-code\\test_lab\\fake_ransom_encrypt_tool.txt",
+      "original_path": "test_lab\\fake_ransom_encrypt_tool.txt",
       "name": "fake_ransom_encrypt_tool.txt",
       "extensions": [
         ".txt"
@@ -234,21 +234,26 @@
       "file_type": "STANDARD_FILE",
       "size_bytes": 73,
       "sha256": "4142aae6a96d6da04999da8ebfb325ae5754fe9e258d532f538665ec7a5ccc39",
+      "entropy": 4.2092,
       "score": 24,
       "stoplight": "GREEN",
       "decision": "ALLOW",
       "human_error_risk": "NONE",
+      "byte_signatures": [],
+      "content_hits": [],
+      "yara_matches": [],
+      "archive_depth": 0,
       "malware_hints": [
         "Ransomware behavior hint"
       ],
       "reasons": [
-        "Suspicious keyword in filename: ransom",
-        "Suspicious keyword in filename: encrypt"
+        "Suspicious keyword: 'ransom'",
+        "Suspicious keyword: 'encrypt'"
       ],
       "quarantine": {
         "status": "NOT_REQUIRED",
         "quarantined_as": null,
-        "message": "No quarantine action needed",
+        "message": "No action needed",
         "encrypted": false,
         "secure_overwrite_attempted": false,
         "secure_overwrite_success": false,
@@ -256,7 +261,7 @@
       }
     },
     {
-      "original_path": "D:\\Projects\\vaxinx-stoplight-code\\vaxinx-stoplight-code\\test_lab\\fake_scareware_urgent_security-alert.bat",
+      "original_path": "test_lab\\fake_scareware_urgent_security-alert.bat",
       "name": "fake_scareware_urgent_security-alert.bat",
       "extensions": [
         ".bat"
@@ -264,23 +269,28 @@
       "file_type": "SCRIPT_EXECUTION_CAPABLE",
       "size_bytes": 53,
       "sha256": "963e459b3c0b7979722b4ac14293d81e3d1595207de91808d362f4c8319e2e87",
+      "entropy": 4.6594,
       "score": 69,
       "stoplight": "YELLOW",
       "decision": "INSPECT",
       "human_error_risk": "NONE",
+      "byte_signatures": [],
+      "content_hits": [],
+      "yara_matches": [],
+      "archive_depth": 0,
       "malware_hints": [
         "Scareware behavior hint",
         "Script-based malware risk"
       ],
       "reasons": [
-        "Script execution-capable extension detected: .bat",
-        "Suspicious keyword in filename: urgent",
-        "Suspicious keyword in filename: security-alert"
+        "Script extension: .bat",
+        "Suspicious keyword: 'urgent'",
+        "Suspicious keyword: 'security-alert'"
       ],
       "quarantine": {
         "status": "NOT_REQUIRED",
         "quarantined_as": null,
-        "message": "No quarantine action needed",
+        "message": "No action needed",
         "encrypted": false,
         "secure_overwrite_attempted": false,
         "secure_overwrite_success": false,
@@ -288,7 +298,7 @@
       }
     },
     {
-      "original_path": "D:\\Projects\\vaxinx-stoplight-code\\vaxinx-stoplight-code\\test_lab\\fake_virus_infect_replicate.exe",
+      "original_path": "test_lab\\fake_virus_infect_replicate.exe",
       "name": "fake_virus_infect_replicate.exe",
       "extensions": [
         ".exe"
@@ -296,22 +306,27 @@
       "file_type": "PE_OR_WINDOWS_EXECUTABLE",
       "size_bytes": 58,
       "sha256": "b3f54a3049868be44eb337950c3aea04eee342583cfcefc7b1a2c396bdd8e795",
-      "score": 55,
+      "entropy": 4.7584,
+      "score": 45,
       "stoplight": "YELLOW",
       "decision": "INSPECT",
       "human_error_risk": "NONE",
+      "byte_signatures": [],
+      "content_hits": [],
+      "yara_matches": [],
+      "archive_depth": 0,
       "malware_hints": [
+        "Virus behavior hint",
         "Virus/Trojan executable risk",
         "Worm behavior hint"
       ],
       "reasons": [
-        "Windows executable-style extension detected: .exe",
-        "Executable extension but PE header not detected or unreadable"
+        "PE extension: .exe"
       ],
       "quarantine": {
         "status": "NOT_REQUIRED",
         "quarantined_as": null,
-        "message": "No quarantine action needed",
+        "message": "No action needed",
         "encrypted": false,
         "secure_overwrite_attempted": false,
         "secure_overwrite_success": false,
@@ -319,7 +334,7 @@
       }
     },
     {
-      "original_path": "D:\\Projects\\vaxinx-stoplight-code\\vaxinx-stoplight-code\\test_lab\\fake_worm_network_share_replicate.js",
+      "original_path": "test_lab\\fake_worm_network_share_replicate.js",
       "name": "fake_worm_network_share_replicate.js",
       "extensions": [
         ".js"
@@ -327,22 +342,28 @@
       "file_type": "SCRIPT_EXECUTION_CAPABLE",
       "size_bytes": 57,
       "sha256": "0f2e3c02e81585fa985d991d4d5d0a5ef137b5d4d10ad8864e54e8d46a33eec4",
+      "entropy": 4.7975,
       "score": 57,
       "stoplight": "YELLOW",
       "decision": "INSPECT",
       "human_error_risk": "NONE",
+      "byte_signatures": [],
+      "content_hits": [],
+      "yara_matches": [],
+      "archive_depth": 0,
       "malware_hints": [
         "Script-based malware risk",
+        "Virus behavior hint",
         "Worm behavior hint"
       ],
       "reasons": [
-        "Script execution-capable extension detected: .js",
-        "Suspicious keyword in filename: worm"
+        "Script extension: .js",
+        "Suspicious keyword: 'worm'"
       ],
       "quarantine": {
         "status": "NOT_REQUIRED",
         "quarantined_as": null,
-        "message": "No quarantine action needed",
+        "message": "No action needed",
         "encrypted": false,
         "secure_overwrite_attempted": false,
         "secure_overwrite_success": false,
@@ -350,7 +371,7 @@
       }
     },
     {
-      "original_path": "D:\\Projects\\vaxinx-stoplight-code\\vaxinx-stoplight-code\\test_lab\\green_normal_note.txt",
+      "original_path": "test_lab\\green_normal_note.txt",
       "name": "green_normal_note.txt",
       "extensions": [
         ".txt"
@@ -358,10 +379,15 @@
       "file_type": "STANDARD_FILE",
       "size_bytes": 18,
       "sha256": "2aed0c44bcaf712d5abc119656ade1ee2f7733d014eb133b356acd9d212733c8",
+      "entropy": 3.4613,
       "score": 0,
       "stoplight": "GREEN",
       "decision": "ALLOW",
       "human_error_risk": "NONE",
+      "byte_signatures": [],
+      "content_hits": [],
+      "yara_matches": [],
+      "archive_depth": 0,
       "malware_hints": [
         "No malware family hint detected"
       ],
@@ -371,7 +397,7 @@
       "quarantine": {
         "status": "NOT_REQUIRED",
         "quarantined_as": null,
-        "message": "No quarantine action needed",
+        "message": "No action needed",
         "encrypted": false,
         "secure_overwrite_attempted": false,
         "secure_overwrite_success": false,
@@ -379,7 +405,7 @@
       }
     },
     {
-      "original_path": "D:\\Projects\\vaxinx-stoplight-code\\vaxinx-stoplight-code\\test_lab\\green_note.txt",
+      "original_path": "test_lab\\green_note.txt",
       "name": "green_note.txt",
       "extensions": [
         ".txt"
@@ -387,10 +413,15 @@
       "file_type": "STANDARD_FILE",
       "size_bytes": 12,
       "sha256": "5fdfe37727886ea6818f698f82faa768722d080f20c7abab85a56b828b4b42d0",
+      "entropy": 3.2516,
       "score": 0,
       "stoplight": "GREEN",
       "decision": "ALLOW",
       "human_error_risk": "NONE",
+      "byte_signatures": [],
+      "content_hits": [],
+      "yara_matches": [],
+      "archive_depth": 0,
       "malware_hints": [
         "No malware family hint detected"
       ],
@@ -400,7 +431,7 @@
       "quarantine": {
         "status": "NOT_REQUIRED",
         "quarantined_as": null,
-        "message": "No quarantine action needed",
+        "message": "No action needed",
         "encrypted": false,
         "secure_overwrite_attempted": false,
         "secure_overwrite_success": false,
@@ -408,38 +439,7 @@
       }
     },
     {
-      "original_path": "D:\\Projects\\vaxinx-stoplight-code\\vaxinx-stoplight-code\\test_lab\\hack_tool.bat",
-      "name": "hack_tool.bat",
-      "extensions": [
-        ".bat"
-      ],
-      "file_type": "SCRIPT_EXECUTION_CAPABLE",
-      "size_bytes": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-      "score": 62,
-      "stoplight": "YELLOW",
-      "decision": "INSPECT",
-      "human_error_risk": "NONE",
-      "malware_hints": [
-        "Script-based malware risk"
-      ],
-      "reasons": [
-        "Script execution-capable extension detected: .bat",
-        "Suspicious keyword in filename: hack",
-        "Empty file"
-      ],
-      "quarantine": {
-        "status": "NOT_REQUIRED",
-        "quarantined_as": null,
-        "message": "No quarantine action needed",
-        "encrypted": false,
-        "secure_overwrite_attempted": false,
-        "secure_overwrite_success": false,
-        "vault_extension": null
-      }
-    },
-    {
-      "original_path": "D:\\Projects\\vaxinx-stoplight-code\\vaxinx-stoplight-code\\test_lab\\human_error_free_wifi_password.txt",
+      "original_path": "test_lab\\human_error_free_wifi_password.txt",
       "name": "human_error_free_wifi_password.txt",
       "extensions": [
         ".txt"
@@ -447,22 +447,28 @@
       "file_type": "STANDARD_FILE",
       "size_bytes": 60,
       "sha256": "1a7c25a5b6604ded6776ce5194216874f3961b9ed81d0f8563d040877a0a9e34",
+      "entropy": 4.7423,
       "score": 39,
       "stoplight": "YELLOW",
       "decision": "INSPECT",
       "human_error_risk": "PASSWORD_SHARING_RISK",
+      "byte_signatures": [],
+      "content_hits": [],
+      "yara_matches": [],
+      "archive_depth": 0,
       "malware_hints": [
-        "Spyware behavior hint"
+        "Spyware behavior hint",
+        "Trojan behavior hint"
       ],
       "reasons": [
-        "Suspicious keyword in filename: password",
-        "Suspicious keyword in filename: free",
-        "Human behavior risk detected: PASSWORD_SHARING_RISK"
+        "Suspicious keyword: 'password'",
+        "Suspicious keyword: 'free'",
+        "Social engineering: PASSWORD_SHARING_RISK"
       ],
       "quarantine": {
         "status": "NOT_REQUIRED",
         "quarantined_as": null,
-        "message": "No quarantine action needed",
+        "message": "No action needed",
         "encrypted": false,
         "secure_overwrite_attempted": false,
         "secure_overwrite_success": false,
@@ -470,7 +476,7 @@
       }
     },
     {
-      "original_path": "D:\\Projects\\vaxinx-stoplight-code\\vaxinx-stoplight-code\\test_lab\\yellow_password_note.txt",
+      "original_path": "test_lab\\yellow_password_note.txt",
       "name": "yellow_password_note.txt",
       "extensions": [
         ".txt"
@@ -478,21 +484,26 @@
       "file_type": "STANDARD_FILE",
       "size_bytes": 28,
       "sha256": "cfdb0decebe82e713ff0ad3d35b296121d18d20056e0ca532390d06df2a4548c",
+      "entropy": 4.0391,
       "score": 27,
       "stoplight": "GREEN",
       "decision": "ALLOW",
       "human_error_risk": "PASSWORD_SHARING_RISK",
+      "byte_signatures": [],
+      "content_hits": [],
+      "yara_matches": [],
+      "archive_depth": 0,
       "malware_hints": [
         "Spyware behavior hint"
       ],
       "reasons": [
-        "Suspicious keyword in filename: password",
-        "Human behavior risk detected: PASSWORD_SHARING_RISK"
+        "Suspicious keyword: 'password'",
+        "Social engineering: PASSWORD_SHARING_RISK"
       ],
       "quarantine": {
         "status": "NOT_REQUIRED",
         "quarantined_as": null,
-        "message": "No quarantine action needed",
+        "message": "No action needed",
         "encrypted": false,
         "secure_overwrite_attempted": false,
         "secure_overwrite_success": false,

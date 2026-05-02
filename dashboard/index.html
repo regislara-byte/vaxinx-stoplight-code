@@ -522,7 +522,7 @@
       <div class="guardian" aria-hidden="true">
         <div class="guardian-ring">
           <div class="orb">
-            <img class="doppio-img" src="Vaxinx_Doppio.gif" alt="Doppio — VAXINX Guardian Node">
+            <img class="doppio-img" src="vaxinx_doppio.gif" alt="Doppio — VAXINX Guardian Node">
           </div>
         </div>
         <span class="guardian-label">Doppio Guardian Node</span>
@@ -685,6 +685,7 @@
           </div>
           <div class="controls-wrap">
             <button class="btn btn-primary" id="loadReportBtn" type="button">⟳ Load Scan Report</button>
+            <button class="btn btn-primary" id="runScanBtn" type="button">▶ Run Live Scan</button>
             <button class="btn btn-danger" id="simulateAlertBtn" type="button">⚠ Simulate Red Alert</button>
             <span class="status-text" id="statusText">Ready — run <code>python scanner_v3.py</code> first.</span>
           </div>
@@ -848,6 +849,35 @@
     $("simulateAlertBtn")?.addEventListener("click", simulateRedAlert);
 
     loadReport();
-  </script>
+
+function runLiveScan() {
+  const status = document.getElementById("statusText");
+  status.textContent = "Running live scan...";
+
+  fetch("/api/scan", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      path: "test_lab",
+      dry_run: false
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+    status.textContent = "Scan completed. Loading report...";
+    setTimeout(loadReport, 1500); // ✅ NO RELOAD
+  })
+  .catch(err => {
+    status.textContent = "ERROR: " + err.message;
+  });
+}
+  // 🔥 THIS is your line (attach button → function)
+    document.addEventListener("DOMContentLoaded", () => {
+  document.getElementById("runScanBtn")
+    ?.addEventListener("click", runLiveScan);
+});
+</script>
 </body>
 </html>

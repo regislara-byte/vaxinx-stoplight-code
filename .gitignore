@@ -1,0 +1,14 @@
+# 🔐 VAXINX Security
+secret.key
+.vault_keys/
+
+# Runtime
+quarantine/
+logs/
+
+# Reports
+reports/scan_report.json
+
+# Python
+__pycache__/
+*.pyc
