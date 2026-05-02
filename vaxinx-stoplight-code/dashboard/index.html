@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VAXINX Stoplight Code Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;600;900&family=Exo+2:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-deep:    #020a12;
+      --bg-panel:   #050f1c;
+      --bg-card:    #071523;
+      --cyan:       #00e5ff;
+      --cyan-dim:   #006a7a;
+      --purple:     #c026ff;
+      --purple-dim: #5a1070;
+      --green:      #00ff88;
+      --green-dim:  #004d29;
+      --yellow:     #ffd600;
+      --yellow-dim: #4a3e00;
+      --red:        #ff2d55;
+      --red-dim:    #4a001a;
+      --text-pri:   #cde8f5;
+      --text-sec:   #6a9ab5;
+      --border:     rgba(0,229,255,0.12);
+      --border-hi:  rgba(0,229,255,0.35);
+      --font-mono:  'Share Tech Mono', monospace;
+      --font-head:  'Orbitron', sans-serif;
+      --font-body:  'Exo 2', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg-deep);
+      color: var(--text-pri);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* ── Scanline overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.18) 2px,
+        rgba(0,0,0,0.18) 4px
+      );
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    /* ── Grid bg ── */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Ambient glows ── */
+    .bg-grid::before {
+      content: '';
+      position: absolute;
+      top: -200px; left: -200px;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, rgba(192,38,255,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .bg-grid::after {
+      content: '';
+      position: absolute;
+      bottom: -200px; right: -200px;
+      width: 800px; height: 800px;
+      background: radial-gradient(circle, rgba(0,229,255,0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── Layout ── */
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 1300px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* ── Header / Hero ── */
+    header.hero {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 40px;
+      padding: 48px 0 40px;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+    }
+
+    header.hero::after {
+      content: '';
+      position: absolute;
+      bottom: -1px; left: 0;
+      width: 320px; height: 1px;
+      background: linear-gradient(90deg, var(--cyan), transparent);
+    }
+
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.25em;
+      color: var(--cyan);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .eyebrow::before {
+      content: '';
+      display: inline-block;
+      width: 24px; height: 1px;
+      background: var(--cyan);
+    }
+
+    .hero-text h1 {
+      font-family: var(--font-head);
+      font-size: clamp(24px, 3.5vw, 42px);
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.01em;
+      background: linear-gradient(135deg, #fff 30%, var(--cyan) 70%, var(--purple) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 14px;
+    }
+
+    .tagline {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-sec);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Doppio guardian ── */
+    .guardian {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+    }
+
+    .guardian-ring {
+      position: relative;
+      width: 160px; height: 160px;
+    }
+
+    .guardian-ring::before {
+      content: '';
+      position: absolute;
+      inset: -8px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,229,255,0.25);
+      animation: spin 12s linear infinite;
+    }
+    .guardian-ring::after {
+      content: '';
+      position: absolute;
+      inset: -16px;
+      border-radius: 50%;
+      border: 1px dashed rgba(192,38,255,0.2);
+      animation: spin 20s linear infinite reverse;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .doppio-img {
+      width: 160px;
+      height: 160px;
+      object-fit: contain;
+      filter: drop-shadow(0 0 20px rgba(0,229,255,0.4)) drop-shadow(0 0 40px rgba(192,38,255,0.25));
+      animation: float 4s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .guardian p {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--cyan);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      opacity: 0.7;
+    }
+
+    /* ── Section spacing ── */
+    main { padding-top: 40px; display: flex; flex-direction: column; gap: 32px; }
+
+    /* ── Panel base ── */
+    .panel {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      position: relative;
+      overflow: hidden;
+    }
+    .panel::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px; height: 100%;
+      background: linear-gradient(180deg, var(--cyan), var(--purple));
+    }
+
+    .panel-head {
+      padding: 16px 24px 14px 28px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .panel-head h2 {
+      font-family: var(--font-head);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-pri);
+    }
+
+    .panel-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 8px;
+      border: 1px solid var(--cyan-dim);
+      color: var(--cyan);
+      letter-spacing: 0.1em;
+    }
+
+    /* ── Decision Engine ── */
+    .flow-wrap {
+      padding: 28px 28px 24px;
+    }
+
+    .flow {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .flow-node {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 8px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text-pri);
+      letter-spacing: 0.05em;
+      position: relative;
+    }
+
+    .flow-node.active {
+      border-color: var(--cyan-dim);
+      color: var(--cyan);
+    }
+
+    .flow-arrow {
+      color: var(--cyan-dim);
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .legend {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      padding: 8px 16px;
+      border-width: 1px;
+      border-style: solid;
+    }
+
+    .legend-item .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .legend-item small {
+      color: var(--text-sec);
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .legend-item.green  { border-color: rgba(0,255,136,0.2); color: var(--green); background: rgba(0,255,136,0.04); }
+    .legend-item.green  .dot { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .legend-item.yellow { border-color: rgba(255,214,0,0.2);  color: var(--yellow); background: rgba(255,214,0,0.04); }
+    .legend-item.yellow .dot { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+    .legend-item.red    { border-color: rgba(255,45,85,0.2);  color: var(--red);    background: rgba(255,45,85,0.04); }
+    .legend-item.red    .dot { background: var(--red);    box-shadow: 0 0 6px var(--red); }
+
+    /* ── Controls ── */
+    .controls-wrap {
+      padding: 20px 28px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 10px 20px;
+      border: 1px solid var(--cyan-dim);
+      background: transparent;
+      color: var(--cyan);
+      cursor: pointer;
+      transition: all 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--cyan);
+      transform: translateX(-101%);
+      transition: transform 0.15s;
+      z-index: 0;
+    }
+
+    .btn:hover { color: var(--bg-deep); }
+    .btn:hover::before { transform: translateX(0); }
+    .btn span { position: relative; z-index: 1; }
+
+    .btn.danger { border-color: rgba(255,45,85,0.4); color: var(--red); }
+    .btn.danger::before { background: var(--red); }
+    .btn.danger:hover { color: #fff; }
+
+    #statusText {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-sec);
+      flex: 1;
+      padding: 10px 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+    }
+
+    #statusText code {
+      font-family: var(--font-mono);
+      color: var(--cyan);
+      background: rgba(0,229,255,0.08);
+      padding: 1px 5px;
+    }
+
+    /* ── Stats Grid ── */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+    }
+
+    .stat-card {
+      background: var(--bg-panel);
+      border: 1px solid var(--border);
+      padding: 20px 18px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--cyan-dim);
+    }
+
+    .stat-card.green-border::after { background: var(--green); }
+    .stat-card.yellow-border::after { background: var(--yellow); }
+    .stat-card.red-border::after  { background: var(--red); }
+
+    .stat-card h3 {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-sec);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .stat-card strong {
+      font-family: var(--font-head);
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--text-pri);
+      letter-spacing: -0.02em;
+      display: block;
+      line-height: 1;
+    }
+
+    .stat-card.green-border strong  { color: var(--green); }
+    .stat-card.yellow-border strong { color: var(--yellow); }
+    .stat-card.red-border strong    { color: var(--red); }
+
+    /* ── Table ── */
+    .table-inner { padding: 0 28px 24px; }
+
+    .table-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 0 16px;
+    }
+
+    .table-meta p {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-sec);
+    }
+
+    .table-meta code {
+      font-family: var(--font-mono);
+      color: var(--purple);
+      background: rgba(192,38,255,0.08);
+      padding: 1px 6px;
+      font-size: 11px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    thead tr {
+      background: var(--bg-card);
+    }
+
+    th {
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--text-sec);
+      padding: 10px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-hi);
+      white-space: nowrap;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--border);
+      transition: background 0.1s;
+    }
+
+    tbody tr:hover {
+      background: rgba(0,229,255,0.03);
+    }
+
+    td {
+      padding: 10px 14px;
+      color: var(--text-sec);
+      vertical-align: middle;
+    }
+
+    td:first-child { color: var(--text-pri); }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      padding: 3px 10px;
+      border-width: 1px;
+      border-style: solid;
+      text-transform: uppercase;
+    }
+
+    .badge-green  { border-color: rgba(0,255,136,0.3); color: var(--green); background: rgba(0,255,136,0.06); }
+    .badge-yellow { border-color: rgba(255,214,0,0.3); color: var(--yellow); background: rgba(255,214,0,0.06); }
+    .badge-red    { border-color: rgba(255,45,85,0.3); color: var(--red); background: rgba(255,45,85,0.06); }
+
+    .badge .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+
+    /* ── Alert Banner ── */
+    .alert-banner {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(255,45,85,0.12);
+      border-top: 1px solid var(--red);
+      color: var(--red);
+      font-family: var(--font-head);
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 14px;
+      z-index: 900;
+      animation: alertPulse 1.5s ease-in-out infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+    }
+
+    .alert-banner::before,
+    .alert-banner::after {
+      content: '⬛';
+      font-size: 8px;
+      color: var(--red);
+      opacity: 0.6;
+    }
+
+    @keyframes alertPulse {
+      0%, 100% { background: rgba(255,45,85,0.08); }
+      50%       { background: rgba(255,45,85,0.18); }
+    }
+
+    .alert-banner.hidden {
+      display: none;
+    }
+
+    /* ── Section label ── */
+    .section-label {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--text-sec);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── Animations ── */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .panel, .stat-card {
+      animation: fadeIn 0.4s ease both;
+    }
+
+    .stat-card:nth-child(1) { animation-delay: 0.05s; }
+    .stat-card:nth-child(2) { animation-delay: 0.1s; }
+    .stat-card:nth-child(3) { animation-delay: 0.15s; }
+    .stat-card:nth-child(4) { animation-delay: 0.2s; }
+    .stat-card:nth-child(5) { animation-delay: 0.25s; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
+      header.hero { grid-template-columns: 1fr; }
+      .guardian { display: none; }
+    }
+    @media (max-width: 600px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-grid" aria-hidden="true"></div>
+
+  <div class="wrapper">
+    <header class="hero">
+      <div class="hero-text">
+        <p class="eyebrow">VAXINX Protocol™</p>
+        <h1>Stoplight Code<br>of the Web</h1>
+        <p class="tagline">// Evaluate before execution. Contain before damage.</p>
+      </div>
+
+      <div class="guardian" aria-hidden="true">
+        <div class="guardian-ring">
+          <img class="doppio-img" src="assets/vxdoppio.png" alt="VAXINX Doppio Guardian Node">
+        </div>
+        <p>Doppio Guardian Node</p>
+      </div>
+    </header>
+
+    <main>
+      <!-- Decision Engine -->
+      <div>
+        <p class="section-label">01 — Decision Engine</p>
+        <article class="panel" aria-label="Decision engine flow">
+          <div class="panel-head">
+            <h2>Threat Pipeline</h2>
+            <span class="panel-badge">Active</span>
+          </div>
+          <div class="flow-wrap">
+            <div class="flow" role="list">
+              <div class="flow-node" role="listitem">Incoming File</div>
+              <span class="flow-arrow" aria-hidden="true">›</span>
+              <div class="flow-node active" role="listitem">VAXINX Gate</div>
+              <span class="flow-arrow" aria-hidden="true">›</span>
+              <div class="flow-node" role="listitem">Threat Intelligence</div>
+              <span class="flow-arrow" aria-hidden="true">›</span>
+              <div class="flow-node active" role="listitem">Stoplight Decision</div>
+            </div>
+            <div class="legend" role="list" aria-label="Decision legend">
+              <div class="legend-item green" role="listitem">
+                <span class="dot" aria-hidden="true"></span>
+                <span>Green</span>
+                <small>Allow</small>
+              </div>
+              <div class="legend-item yellow" role="listitem">
+                <span class="dot" aria-hidden="true"></span>
+                <span>Yellow</span>
+                <small>Inspect</small>
+              </div>
+              <div class="legend-item red" role="listitem">
+                <span class="dot" aria-hidden="true"></span>
+                <span>Red</span>
+                <small>Quarantine</small>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Controls -->
+      <div>
+        <p class="section-label">02 — Controls</p>
+        <article class="panel">
+          <div class="controls-wrap">
+            <button class="btn" id="loadReportBtn" type="button"><span>Load Scan Report</span></button>
+            <button class="btn danger" id="simulateAlertBtn" type="button"><span>Simulate Red Alert</span></button>
+            <p id="statusText" role="status" aria-live="polite">Ready. Run <code>python scanner.py</code> first.</p>
+          </div>
+        </article>
+      </div>
+
+      <!-- Stats -->
+      <div>
+        <p class="section-label">03 — Statistics</p>
+        <div class="stats-grid" role="list" aria-label="Scan statistics">
+          <article class="stat-card" role="listitem">
+            <h3>Total Files</h3>
+            <strong id="totalFiles" aria-label="Total files scanned">—</strong>
+          </article>
+          <article class="stat-card green-border" role="listitem">
+            <h3>Green</h3>
+            <strong id="greenCount" aria-label="Green files">—</strong>
+          </article>
+          <article class="stat-card yellow-border" role="listitem">
+            <h3>Yellow</h3>
+            <strong id="yellowCount" aria-label="Yellow files">—</strong>
+          </article>
+          <article class="stat-card red-border" role="listitem">
+            <h3>Red</h3>
+            <strong id="redCount" aria-label="Red files">—</strong>
+          </article>
+          <article class="stat-card" role="listitem">
+            <h3>Quarantined</h3>
+            <strong id="quarantineCount" aria-label="Quarantined files">—</strong>
+          </article>
+        </div>
+      </div>
+
+      <!-- Report Table -->
+      <div>
+        <p class="section-label">04 — File Intelligence</p>
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Scan Report</h2>
+            </div>
+          <div class="table-inner">
+            <div class="table-meta">
+              <p>Source: <code>reports/scan_report.json</code></p>
+            </div>
+            <div class="table-wrap">
+              <table aria-label="File intelligence report">
+                <thead>
+                  <tr>
+                    <th scope="col">Decision</th>
+                    <th scope="col">File</th>
+                    <th scope="col">Type</th>
+                    <th scope="col">Malware Hints</th>
+                    <th scope="col">Score</th>
+                    <th scope="col">Reasons</th>
+                    <th scope="col">Quarantine</th>
+                  </tr>
+                </thead>
+                <tbody id="reportBody">
+                  <tr>
+                    <td colspan="7" style="text-align:center;color:var(--text-sec);padding:32px;font-family:var(--font-mono);font-size:12px;letter-spacing:0.1em;">
+                      // NO REPORT LOADED — RUN SCANNER FIRST
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </article>
+      </div>
+    </main>
+  </div>
+
+  <div
+    id="alertBanner"
+    class="alert-banner hidden"
+    role="alert"
+    aria-live="assertive"
+    aria-atomic="true"
+    aria-hidden="true"
+  >
+    RED ALERT — QUARANTINE MODE ENGAGED
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
