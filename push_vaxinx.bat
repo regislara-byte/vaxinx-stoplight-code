@@ -1,28 +1,37 @@
 @echo off
-title VAXINX AI Scanner Git Push
+title VAXINX Push System v3
+
+color 0A
 
 echo.
-echo ================================
-echo      VAXINX QUICK PUSH
-echo ================================
+echo ===============================
+echo    VAXINX PUSH PIPELINE
+echo ===============================
 echo.
 
+git status
+
+echo.
+set /p commitmsg=Enter commit message: 
+
+echo.
+echo Adding files...
 git add .
 
-set /p msg=Enter commit message: 
-git commit -m "%msg%"
+echo.
+echo Committing...
+git commit -m "%commitmsg%"
 
+echo.
+echo Pushing to GitHub...
 git push
 
 echo.
-echo Opening live site...
-timeout /t 2 >nul
-
-start "" "https://https://github.com/regislara-byte/vaxinx-ai-scanner"
-
-
+echo ===============================
+echo        PUSH COMPLETE
+echo ===============================
 echo.
-echo ================================
-echo DEPLOY COMPLETE
-echo ================================
+
+start https://github.com/regislara-byte/vaxinx-ai-scanner
+
 pause
