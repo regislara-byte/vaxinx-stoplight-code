@@ -32,6 +32,7 @@ echo        PUSH COMPLETE
 echo ===============================
 echo.
 
-start https://github.com/regislara-byte/vaxinx-ai-scanner
+start "" "https://github.com/regislara-byte/vaxinx-ai-scanner"
+start "" "https://github.com/regislara-byte/vaxinx-ai-scanner/dashboard/index.html"
 
 pause
