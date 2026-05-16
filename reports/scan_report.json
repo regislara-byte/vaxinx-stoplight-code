@@ -1,7 +1,7 @@
 {
   "scanner": "VAXINX Stoplight Code Scanner",
   "version": "3.0-VAULT",
-  "scan_time": "2026-05-03T00:27:41",
+  "scan_time": "2026-05-03T01:11:44",
   "target": "test_lab",
   "yara_rules": [],
   "summary": {
