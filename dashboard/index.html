@@ -4,446 +4,137 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VAXINX — Stoplight Scanner v3.0</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg:         #060d14;
-      --bg-panel:   #080f18;
-      --bg-card:    #0b1520;
-      --bg-card2:   #0d1a27;
-      --cyan:       #00e5c8;
-      --cyan-dim:   rgba(0,229,200,0.15);
-      --cyan-glow:  rgba(0,229,200,0.08);
-      --teal:       #00b4d8;
-      --amber:      #f0a500;
-      --red:        #ff3d5a;
-      --red-dim:    rgba(255,61,90,0.12);
-      --green:      #00e096;
-      --green-dim:  rgba(0,224,150,0.12);
-      --yellow:     #f5c518;
-      --yellow-dim: rgba(245,197,24,0.12);
-      --text:       #cde8f5;
+      --bg: #060d14;
+      --bg-panel: #080f18;
+      --bg-card: #0b1520;
+      --bg-card2: #0d1a27;
+      --cyan: #00e5c8;
+      --cyan-dim: rgba(0,229,200,0.15);
+      --teal: #00b4d8;
+      --amber: #f0a500;
+      --red: #ff3d5a;
+      --red-dim: rgba(255,61,90,0.12);
+      --green: #00e096;
+      --yellow: #f5c518;
+      --text: #cde8f5;
       --text-muted: #4a7a96;
-      --text-dim:   #2a4a5e;
-      --border:     rgba(0,229,200,0.1);
-      --border-hi:  rgba(0,229,200,0.25);
-      --mono:       'IBM Plex Mono', monospace;
-      --head:       'Syne', sans-serif;
-      --code:       'Space Mono', monospace;
+      --text-dim: #2a4a5e;
+      --border: rgba(0,229,200,0.1);
+      --border-hi: rgba(0,229,200,0.25);
+      --mono: 'IBM Plex Mono', monospace;
+      --head: 'Syne', sans-serif;
+      --code: 'Space Mono', monospace;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
+    body { background: var(--bg); color: var(--text); font-family: var(--head); min-height: 100vh; overflow-x: hidden; }
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--head);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* ── Scanline overlay ── */
     body::before {
-      content: '';
-      position: fixed; inset: 0;
+      content: ''; position: fixed; inset: 0;
       background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,0,0,.12) 3px, rgba(0,0,0,.12) 4px);
       pointer-events: none; z-index: 9999;
     }
 
-    /* ── Grid bg ── */
     .bg-grid {
       position: fixed; inset: 0;
       background-image:
         linear-gradient(rgba(0,229,200,0.025) 1px, transparent 1px),
         linear-gradient(90deg, rgba(0,229,200,0.025) 1px, transparent 1px);
-      background-size: 44px 44px;
-      pointer-events: none; z-index: 0;
+      background-size: 44px 44px; pointer-events: none; z-index: 0;
     }
-    .bg-grid::before {
-      content: '';
-      position: absolute; top: -300px; left: -300px;
-      width: 900px; height: 900px;
-      background: radial-gradient(circle, rgba(0,180,216,0.06) 0%, transparent 65%);
-    }
-    .bg-grid::after {
-      content: '';
-      position: absolute; bottom: -200px; right: -100px;
-      width: 700px; height: 700px;
-      background: radial-gradient(circle, rgba(0,229,200,0.05) 0%, transparent 65%);
-    }
+    .bg-grid::before { content: ''; position: absolute; top: -300px; left: -300px; width: 900px; height: 900px; background: radial-gradient(circle, rgba(0,180,216,0.06) 0%, transparent 65%); }
+    .bg-grid::after { content: ''; position: absolute; bottom: -200px; right: -100px; width: 700px; height: 700px; background: radial-gradient(circle, rgba(0,229,200,0.05) 0%, transparent 65%); }
 
-    /* ── Layout ── */
-    .wrapper {
-      position: relative; z-index: 1;
-      max-width: 1340px; margin: 0 auto;
-      padding: 0 28px 100px;
-    }
+    .wrapper { position: relative; z-index: 1; max-width: 1340px; margin: 0 auto; padding: 0 28px 100px; }
 
-    /* ── Top nav strip ── */
-    .topbar {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 14px 0; border-bottom: 1px solid var(--border);
-      font-family: var(--mono); font-size: 11px;
-      color: var(--text-muted); letter-spacing: 0.1em;
-    }
+    .topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 0; border-bottom: 1px solid var(--border); font-family: var(--mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.1em; }
     .topbar-left { display: flex; align-items: center; gap: 24px; }
-    .topbar-logo {
-      font-size: 13px; font-weight: 700; color: var(--cyan);
-      letter-spacing: 0.25em; text-transform: uppercase;
-    }
+    .topbar-logo { font-size: 13px; font-weight: 700; color: var(--cyan); letter-spacing: 0.25em; text-transform: uppercase; }
     .topbar-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: blink 2s ease-in-out infinite; }
     @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
     .topbar-status { display: flex; align-items: center; gap: 8px; }
 
-    /* ── Hero ── */
-    header.hero {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      gap: 48px;
-      padding: 52px 0 44px;
-      border-bottom: 1px solid var(--border);
-      position: relative;
-    }
-    header.hero::after {
-      content: '';
-      position: absolute; bottom: -1px; left: 0;
-      width: 280px; height: 1px;
-      background: linear-gradient(90deg, var(--cyan), transparent);
-    }
-
-    .eyebrow {
-      font-family: var(--mono); font-size: 10px;
-      letter-spacing: 0.3em; color: var(--cyan);
-      text-transform: uppercase;
-      margin-bottom: 14px;
-      display: flex; align-items: center; gap: 12px;
-    }
-    .eyebrow::before {
-      content: ''; display: inline-block;
-      width: 28px; height: 1px; background: var(--cyan);
-    }
-
-    .hero-text h1 {
-      font-family: var(--head); font-size: clamp(28px, 3.8vw, 52px);
-      font-weight: 800; line-height: 1.05; letter-spacing: -0.02em;
-      color: #fff; margin-bottom: 16px;
-    }
+    header.hero { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 48px; padding: 52px 0 44px; border-bottom: 1px solid var(--border); position: relative; }
+    header.hero::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 280px; height: 1px; background: linear-gradient(90deg, var(--cyan), transparent); }
+    .eyebrow { font-family: var(--mono); font-size: 10px; letter-spacing: 0.3em; color: var(--cyan); text-transform: uppercase; margin-bottom: 14px; display: flex; align-items: center; gap: 12px; }
+    .eyebrow::before { content: ''; display: inline-block; width: 28px; height: 1px; background: var(--cyan); }
+    .hero-text h1 { font-family: var(--head); font-size: clamp(28px, 3.8vw, 52px); font-weight: 800; line-height: 1.05; letter-spacing: -0.02em; color: #fff; margin-bottom: 16px; }
     .hero-text h1 span { color: var(--cyan); }
+    .tagline { font-family: var(--mono); font-size: 12px; color: var(--text-muted); letter-spacing: 0.06em; }
 
-    .tagline {
-      font-family: var(--mono); font-size: 12px;
-      color: var(--text-muted); letter-spacing: 0.06em;
-    }
-
-    /* ── Guardian orb ── */
     .guardian { display: flex; flex-direction: column; align-items: center; gap: 14px; }
-    .guardian-ring {
-      position: relative; width: 170px; height: 170px;
-      display: flex; align-items: center; justify-content: center;
-    }
-    .guardian-ring::before {
-      content: ''; position: absolute; inset: -12px; border-radius: 50%;
-      border: 1px solid rgba(0,229,200,0.22);
-      animation: spin 14s linear infinite;
-    }
-    .guardian-ring::after {
-      content: ''; position: absolute; inset: -24px; border-radius: 50%;
-      border: 1px dashed rgba(160,80,255,0.18);
-      animation: spin 22s linear infinite reverse;
-    }
+    .guardian-ring { position: relative; width: 170px; height: 170px; display: flex; align-items: center; justify-content: center; }
+    .guardian-ring::before { content: ''; position: absolute; inset: -12px; border-radius: 50%; border: 1px solid rgba(0,229,200,0.22); animation: spin 14s linear infinite; }
+    .guardian-ring::after { content: ''; position: absolute; inset: -24px; border-radius: 50%; border: 1px dashed rgba(160,80,255,0.18); animation: spin 22s linear infinite reverse; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    .orb {
-      width: 154px; height: 154px;
-      display: flex; align-items: center; justify-content: center;
-      animation: float 5s ease-in-out infinite;
-    }
-    .doppio-img {
-      width: 154px; height: 154px;
-      object-fit: contain;
-      filter: drop-shadow(0 0 18px rgba(0,229,200,0.55))
-              drop-shadow(0 0 40px rgba(160,80,255,0.3));
-    }
+    .orb { width: 154px; height: 154px; display: flex; align-items: center; justify-content: center; animation: float 5s ease-in-out infinite; }
+    .doppio-img { width: 154px; height: 154px; object-fit: contain; filter: drop-shadow(0 0 18px rgba(0,229,200,0.55)) drop-shadow(0 0 40px rgba(160,80,255,0.3)); }
     @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-
-    .guardian-label {
-      font-family: var(--mono); font-size: 9px; letter-spacing: 0.25em;
-      color: var(--text-muted); text-transform: uppercase;
-    }
-
-    /* ── Section label ── */
-    .section-label {
-      font-family: var(--mono); font-size: 10px;
-      color: var(--text-muted); letter-spacing: 0.25em;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-      display: flex; align-items: center; gap: 12px;
-    }
-    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .guardian-label { font-family: var(--mono); font-size: 9px; letter-spacing: 0.25em; color: var(--text-muted); text-transform: uppercase; }
 
     main { padding-top: 44px; display: flex; flex-direction: column; gap: 36px; }
+    .section-label { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.25em; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-    /* ── Panel ── */
-    .panel {
-      background: var(--bg-panel);
-      border: 1px solid var(--border);
-      border-radius: 3px;
-      position: relative; overflow: hidden;
-    }
-    .panel::before {
-      content: ''; position: absolute; top: 0; left: 0;
-      width: 2px; height: 100%;
-      background: linear-gradient(180deg, var(--cyan), var(--teal), transparent);
-    }
-    .panel-head {
-      padding: 16px 22px 14px 26px;
-      border-bottom: 1px solid var(--border);
-      display: flex; align-items: center; gap: 12px;
-    }
-    .panel-head h2 {
-      font-family: var(--mono); font-size: 11px; font-weight: 700;
-      letter-spacing: 0.2em; text-transform: uppercase; color: var(--text);
-    }
-    .panel-chip {
-      font-family: var(--mono); font-size: 9px;
-      padding: 2px 8px; border: 1px solid rgba(0,229,200,0.2);
-      color: var(--cyan); letter-spacing: 0.1em;
-      border-radius: 2px;
-    }
+    .panel { background: var(--bg-panel); border: 1px solid var(--border); border-radius: 3px; position: relative; overflow: hidden; animation: fadeIn 0.4s ease both; }
+    .panel::before { content: ''; position: absolute; top: 0; left: 0; width: 2px; height: 100%; background: linear-gradient(180deg, var(--cyan), var(--teal), transparent); }
+    .panel-head { padding: 16px 22px 14px 26px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+    .panel-head h2 { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text); }
+    .panel-chip { font-family: var(--mono); font-size: 9px; padding: 2px 8px; border: 1px solid rgba(0,229,200,0.2); color: var(--cyan); letter-spacing: 0.1em; border-radius: 2px; }
     .panel-chip.live { border-color: rgba(0,224,150,0.3); color: var(--green); }
-    .panel-chip.warn { border-color: rgba(240,165,0,0.3); color: var(--amber); }
 
-    /* ── Credential-style card (matching dashboard screenshot) ── */
-    .cred-card {
-      display: grid; grid-template-columns: auto 1fr;
-      gap: 0; background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 6px; overflow: hidden;
-      transition: border-color 0.2s;
-    }
+    .cred-card { display: grid; grid-template-columns: auto 1fr; background: var(--bg-card); border: 1px solid var(--border); border-radius: 6px; overflow: hidden; transition: border-color 0.2s; }
     .cred-card:hover { border-color: var(--border-hi); }
-    .cred-badge-col {
-      width: 100px; padding: 28px 20px;
-      background: var(--bg-card2);
-      border-right: 1px solid var(--border);
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; gap: 10px;
-    }
+    .cred-badge-col { width: 100px; padding: 28px 20px; background: var(--bg-card2); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
     .cred-badge-icon { font-size: 42px; }
-    .cred-badge-status {
-      font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em;
-      color: var(--green); display: flex; align-items: center; gap: 5px;
-    }
+    .cred-badge-status { font-family: var(--mono); font-size: 9px; letter-spacing: 0.1em; color: var(--green); display: flex; align-items: center; gap: 5px; }
     .cred-badge-status::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--green); }
     .cred-content { padding: 24px 28px; }
-    .cred-meta {
-      font-family: var(--mono); font-size: 10px;
-      color: var(--text-muted); letter-spacing: 0.15em;
-      text-transform: uppercase; margin-bottom: 8px;
-    }
-    .cred-title {
-      font-family: var(--head); font-size: 22px; font-weight: 700;
-      color: #fff; margin-bottom: 10px;
-    }
-    .cred-desc {
-      font-family: var(--head); font-size: 13px;
-      color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;
-    }
+    .cred-meta { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 8px; }
+    .cred-title { font-family: var(--head); font-size: 22px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+    .cred-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px; }
     .cred-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; }
-    .cred-tag {
-      font-family: var(--mono); font-size: 10px;
-      padding: 4px 12px;
-      border: 1px solid var(--border-hi);
-      color: var(--cyan); border-radius: 2px;
-      display: flex; align-items: center; gap: 6px;
-    }
+    .cred-tag { font-family: var(--mono); font-size: 10px; padding: 4px 12px; border: 1px solid var(--border-hi); color: var(--cyan); border-radius: 2px; display: flex; align-items: center; gap: 6px; }
     .cred-actions { display: flex; gap: 10px; }
-    .btn {
-      font-family: var(--mono); font-size: 10px; font-weight: 700;
-      letter-spacing: 0.15em; text-transform: uppercase;
-      padding: 9px 18px; border: 0; border-radius: 2px; cursor: pointer;
-      transition: all 0.15s;
-    }
+
+    .btn { font-family: var(--mono); font-size: 10px; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; padding: 9px 18px; border: 0; border-radius: 2px; cursor: pointer; transition: all 0.15s; }
     .btn-primary { background: var(--cyan); color: #020d12; }
     .btn-primary:hover { background: #00fff0; }
-    .btn-ghost {
-      background: transparent; color: var(--text-muted);
-      border: 1px solid var(--border-hi);
-    }
+    .btn-ghost { background: transparent; color: var(--text-muted); border: 1px solid var(--border-hi); }
     .btn-ghost:hover { color: var(--text); border-color: var(--cyan); }
     .btn-danger { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,61,90,0.2); }
-    .btn-danger:hover { background: rgba(255,61,90,0.2); }
 
-    /* ── Achievement mini-cards (01B style) ── */
-    .ach-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 12px; padding: 20px 24px;
-    }
-    .ach-card {
-      background: var(--bg-card2);
-      border: 1px solid var(--border);
-      border-radius: 4px; padding: 16px 14px;
-      transition: border-color 0.2s;
-    }
+    .ach-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; padding: 20px 24px; }
+    .ach-card { background: var(--bg-card2); border: 1px solid var(--border); border-radius: 4px; padding: 16px 14px; transition: border-color 0.2s; }
     .ach-card:hover { border-color: var(--border-hi); }
-    .ach-type {
-      font-family: var(--mono); font-size: 9px;
-      color: var(--cyan); letter-spacing: 0.15em; margin-bottom: 10px;
-    }
+    .ach-type { font-family: var(--mono); font-size: 9px; color: var(--cyan); letter-spacing: 0.15em; margin-bottom: 10px; }
     .ach-icon { font-size: 24px; margin-bottom: 8px; display: block; }
-    .ach-name {
-      font-family: var(--head); font-size: 13px; font-weight: 700;
-      color: var(--text); margin-bottom: 4px;
-    }
-    .ach-sub {
-      font-family: var(--mono); font-size: 9px;
-      color: var(--text-muted); display: flex; align-items: center; gap: 6px;
-      margin-bottom: 6px;
-    }
+    .ach-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .ach-sub { font-family: var(--mono); font-size: 9px; color: var(--text-muted); display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
     .ach-sub::before { content: '■'; font-size: 6px; color: var(--border-hi); }
-    .ach-date {
-      font-family: var(--mono); font-size: 9px;
-      color: var(--text-dim); letter-spacing: 0.05em;
-    }
+    .ach-date { font-family: var(--mono); font-size: 9px; color: var(--text-dim); letter-spacing: 0.05em; }
 
-    /* ── In-progress cards ── */
-    .progress-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
-      padding: 20px 24px;
-    }
-    .prog-card {
-      background: var(--bg-card2); border: 1px solid var(--border);
-      border-radius: 4px; padding: 20px 18px;
-    }
-    .prog-tag {
-      font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em;
-      padding: 3px 10px; border-radius: 2px; margin-bottom: 12px;
-      display: inline-block;
-    }
+    .progress-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 20px 24px; }
+    .prog-card { background: var(--bg-card2); border: 1px solid var(--border); border-radius: 4px; padding: 20px 18px; }
+    .prog-tag { font-family: var(--mono); font-size: 9px; letter-spacing: 0.15em; padding: 3px 10px; border-radius: 2px; margin-bottom: 12px; display: inline-block; }
     .prog-tag.active-build { background: rgba(240,165,0,0.15); color: var(--amber); border: 1px solid rgba(240,165,0,0.2); }
-    .prog-tag.in-progress  { background: rgba(0,180,216,0.12); color: var(--teal); border: 1px solid rgba(0,180,216,0.2); }
-    .prog-card h3 { font-family: var(--head); font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 8px; }
-    .prog-card p  { font-family: var(--head); font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    .prog-tag.in-progress { background: rgba(0,180,216,0.12); color: var(--teal); border: 1px solid rgba(0,180,216,0.2); }
+    .prog-card h3 { font-size: 17px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+    .prog-card p { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
 
-    /* ── Controls ── */
-    .controls-wrap {
-      padding: 20px 26px;
-      display: flex; align-items: center; flex-wrap: wrap; gap: 10px;
-    }
-    .status-text {
-      font-family: var(--mono); font-size: 11px;
-      color: var(--text-muted); margin-left: 8px;
-    }
-    .status-text code { color: var(--cyan); font-family: var(--mono); }
-
-    /* ── Stats grid ── */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 12px;
-    }
-    .stat-card {
-      background: var(--bg-card); border: 1px solid var(--border);
-      border-radius: 3px; padding: 18px 20px;
-      position: relative; overflow: hidden;
-      animation: fadeIn 0.4s ease both;
-    }
-    .stat-card::before {
-      content: ''; position: absolute; bottom: 0; left: 0;
-      width: 100%; height: 2px;
-    }
-    .stat-card.green-b::before { background: rgba(0,224,150,0.4); }
-    .stat-card.yellow-b::before { background: rgba(245,197,24,0.4); }
-    .stat-card.red-b::before { background: rgba(255,61,90,0.4); }
-    .stat-card h3 {
-      font-family: var(--mono); font-size: 9px; font-weight: 400;
-      letter-spacing: 0.2em; text-transform: uppercase;
-      color: var(--text-muted); margin-bottom: 12px;
-    }
-    .stat-card strong {
-      display: block; font-family: var(--head); font-size: 38px;
-      font-weight: 800; color: #fff; line-height: 1;
-    }
-    .stat-card:nth-child(1) { animation-delay: 0.05s; }
-    .stat-card:nth-child(2) { animation-delay: 0.1s; }
-    .stat-card:nth-child(3) { animation-delay: 0.15s; }
-    .stat-card:nth-child(4) { animation-delay: 0.2s; }
-    .stat-card:nth-child(5) { animation-delay: 0.25s; }
-
-    /* ── Table ── */
-    .table-inner { padding: 0 0 2px; }
-    .table-meta {
-      padding: 10px 26px;
-      font-family: var(--mono); font-size: 10px; color: var(--text-muted);
-      border-bottom: 1px solid var(--border);
-    }
-    .table-meta code { color: var(--cyan); }
-    .table-wrap { overflow-x: auto; }
-    table { width: 100%; min-width: 1100px; border-collapse: collapse; }
-    th {
-      padding: 12px 14px; text-align: left;
-      font-family: var(--mono); font-size: 9px; font-weight: 400;
-      letter-spacing: 0.2em; text-transform: uppercase;
-      color: var(--teal); background: rgba(0,0,0,0.2);
-      border-bottom: 1px solid var(--border-hi);
-      white-space: nowrap;
-    }
-    td {
-      padding: 11px 14px; color: var(--text-muted);
-      border-bottom: 1px solid var(--border);
-      font-family: var(--head); font-size: 13px;
-      vertical-align: middle;
-    }
-    tbody tr { transition: background 0.1s; }
-    tbody tr:hover { background: rgba(0,229,200,0.025); }
-    td:first-child { color: var(--text); }
-    td:nth-child(2) { color: var(--text); font-family: var(--mono); font-size: 11px; }
-    td:nth-child(5) { font-family: var(--code); font-size: 12px; }
-
-    /* ── Badges ── */
-    .badge {
-      display: inline-flex; align-items: center; gap: 5px;
-      font-family: var(--mono); font-size: 9px; font-weight: 700;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      padding: 4px 10px; border-width: 1px; border-style: solid;
-    }
-    .badge .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-    .badge-green  { border-color: rgba(0,224,150,0.3); color: var(--green); background: rgba(0,224,150,0.07); }
-    .badge-yellow { border-color: rgba(245,197,24,0.3); color: var(--yellow); background: rgba(245,197,24,0.07); }
-    .badge-red    { border-color: rgba(255,61,90,0.3);  color: var(--red);    background: rgba(255,61,90,0.07); }
-
-    /* ── Flow pipeline ── */
     .flow-wrap { padding: 24px 26px; }
-    .flow {
-      display: flex; align-items: center; gap: 6px;
-      flex-wrap: wrap; margin-bottom: 24px;
-    }
-    .flow-node {
-      font-family: var(--mono); font-size: 11px;
-      padding: 8px 14px; background: var(--bg-card);
-      border: 1px solid var(--border); color: var(--text-muted);
-      border-radius: 2px;
-    }
+    .flow { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 24px; }
+    .flow-node { font-family: var(--mono); font-size: 11px; padding: 8px 14px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); border-radius: 2px; }
     .flow-node.active { border-color: var(--border-hi); color: var(--cyan); }
     .flow-arrow { color: var(--text-dim); font-size: 18px; }
-
-    .legend {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
-    }
-    .legend-item {
-      padding: 14px 16px; border-radius: 3px;
-      border: 1px solid var(--border);
-    }
-    .legend-item .leg-head {
-      display: flex; align-items: center; gap: 8px;
-      font-family: var(--mono); font-size: 11px; font-weight: 700;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      margin-bottom: 6px;
-    }
+    .legend { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .legend-item { padding: 14px 16px; border-radius: 3px; border: 1px solid var(--border); }
+    .legend-item .leg-head { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
     .legend-item .leg-dot { width: 8px; height: 8px; border-radius: 50%; }
     .legend-item small { font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
     .leg-green { background: rgba(0,224,150,0.07); }
@@ -456,51 +147,58 @@
     .leg-red .leg-dot { background: var(--red); }
     .leg-red .leg-head { color: var(--red); }
 
-    /* ── Alert banner ── */
-    .alert-banner {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      background: rgba(255,61,90,0.1);
-      border-top: 1px solid rgba(255,61,90,0.4);
-      color: var(--red);
-      font-family: var(--mono); font-size: 11px; font-weight: 700;
-      letter-spacing: 0.25em; text-transform: uppercase;
-      text-align: center; padding: 14px;
-      z-index: 998;
-      display: flex; align-items: center; justify-content: center; gap: 16px;
-      animation: alertPulse 1.5s ease-in-out infinite;
-    }
-    @keyframes alertPulse {
-      0%,100% { background: rgba(255,61,90,0.08); }
-      50%      { background: rgba(255,61,90,0.16); }
-    }
+    .controls-wrap { padding: 20px 26px; display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .status-text { font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-left: 8px; }
+    .status-text code { color: var(--cyan); font-family: var(--mono); }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 3px; padding: 18px 20px; position: relative; overflow: hidden; animation: fadeIn 0.4s ease both; }
+    .stat-card::before { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; }
+    .stat-card.green-b::before { background: rgba(0,224,150,0.4); }
+    .stat-card.yellow-b::before { background: rgba(245,197,24,0.4); }
+    .stat-card.red-b::before { background: rgba(255,61,90,0.4); }
+    .stat-card h3 { font-family: var(--mono); font-size: 9px; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
+    .stat-card strong { display: block; font-family: var(--head); font-size: 38px; font-weight: 800; color: #fff; line-height: 1; }
+
+    .table-inner { padding: 0 0 2px; }
+    .table-meta { padding: 10px 26px; font-family: var(--mono); font-size: 10px; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+    .table-meta code { color: var(--cyan); }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; min-width: 1100px; border-collapse: collapse; }
+    th { padding: 12px 14px; text-align: left; font-family: var(--mono); font-size: 9px; font-weight: 400; letter-spacing: 0.2em; text-transform: uppercase; color: var(--teal); background: rgba(0,0,0,0.2); border-bottom: 1px solid var(--border-hi); white-space: nowrap; }
+    td { padding: 11px 14px; color: var(--text-muted); border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; }
+    tbody tr { transition: background 0.1s; }
+    tbody tr:hover { background: rgba(0,229,200,0.025); }
+    td:first-child { color: var(--text); }
+    td:nth-child(2) { color: var(--text); font-family: var(--mono); font-size: 11px; }
+    td:nth-child(5) { font-family: var(--code); font-size: 12px; }
+
+    .badge { display: inline-flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; padding: 4px 10px; border-width: 1px; border-style: solid; }
+    .badge .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .badge-green { border-color: rgba(0,224,150,0.3); color: var(--green); background: rgba(0,224,150,0.07); }
+    .badge-yellow { border-color: rgba(245,197,24,0.3); color: var(--yellow); background: rgba(245,197,24,0.07); }
+    .badge-red { border-color: rgba(255,61,90,0.3); color: var(--red); background: rgba(255,61,90,0.07); }
+
+    .eco-footer { margin-top: 18px; padding: 28px 0 8px; border-top: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; gap: 14px; }
+    .eco-icons { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+    .eco-icon { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--border-hi); border-radius: 50%; background: rgba(0,229,200,0.035); transition: transform 0.15s ease, border-color 0.15s ease, filter 0.15s ease; }
+    .eco-icon:hover { transform: translateY(-3px); border-color: var(--cyan); filter: drop-shadow(0 0 10px rgba(0,229,200,0.45)); }
+    .eco-icon img { width: 18px; height: 18px; object-fit: contain; display: block; }
+    .eco-text { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.14em; text-transform: uppercase; text-align: center; }
+
+    .alert-banner { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(255,61,90,0.1); border-top: 1px solid rgba(255,61,90,0.4); color: var(--red); font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase; text-align: center; padding: 14px; z-index: 998; display: flex; align-items: center; justify-content: center; gap: 16px; animation: alertPulse 1.5s ease-in-out infinite; }
+    @keyframes alertPulse { 0%,100% { background: rgba(255,61,90,0.08); } 50% { background: rgba(255,61,90,0.16); } }
     .alert-banner.hidden { display: none; }
-
-    /* ── Animations ── */
     @keyframes fadeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
-    .panel { animation: fadeIn 0.4s ease both; }
-    .panel:nth-child(2) { animation-delay: 0.06s; }
-    .panel:nth-child(3) { animation-delay: 0.12s; }
 
-    /* ── Responsive ── */
-    @media (max-width: 900px) {
-      header.hero { grid-template-columns: 1fr; }
-      .guardian { display: none; }
-      .progress-grid { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 600px) {
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-      .legend { grid-template-columns: 1fr; }
-      .cred-card { grid-template-columns: 1fr; }
-      .cred-badge-col { border-right: 0; border-bottom: 1px solid var(--border); flex-direction: row; justify-content: flex-start; width: 100%; }
-    }
+    @media (max-width: 900px) { header.hero { grid-template-columns: 1fr; } .guardian { display: none; } .progress-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } .legend { grid-template-columns: 1fr; } .cred-card { grid-template-columns: 1fr; } .cred-badge-col { border-right: 0; border-bottom: 1px solid var(--border); flex-direction: row; justify-content: flex-start; width: 100%; } }
   </style>
 </head>
 <body>
   <div class="bg-grid" aria-hidden="true"></div>
 
   <div class="wrapper">
-
-    <!-- Top bar -->
     <div class="topbar">
       <div class="topbar-left">
         <span class="topbar-logo">VAXINX</span>
@@ -512,7 +210,6 @@
       </div>
     </div>
 
-    <!-- Hero -->
     <header class="hero">
       <div class="hero-text">
         <p class="eyebrow">VAXINX Protocol™ · Defensive Security</p>
@@ -522,7 +219,7 @@
       <div class="guardian" aria-hidden="true">
         <div class="guardian-ring">
           <div class="orb">
-            <img class="doppio-img" src="vaxinx_doppio.gif" alt="Doppio — VAXINX Guardian Node">
+            <img class="doppio-img" src="Vaxinx_Doppio.gif" alt="Doppio — VAXINX Guardian Node" />
           </div>
         </div>
         <span class="guardian-label">Doppio Guardian Node</span>
@@ -530,8 +227,6 @@
     </header>
 
     <main>
-
-      <!-- 01 — Verified Credentials -->
       <div>
         <p class="section-label">01 — Verified Credentials</p>
         <div class="cred-card">
@@ -549,234 +244,129 @@
               <span class="cred-tag">🔐 System Safeguards</span>
             </div>
             <div class="cred-actions">
-              <a href="https://www.credly.com/users/regis-lara" target="_blank" rel="noopener" style="text-decoration:none;">
-                <button class="btn btn-primary">Credly Profile ↗</button>
-              </a>
+              <a href="https://www.credly.com/users/regis-lara" target="_blank" rel="noopener" style="text-decoration:none;"><button class="btn btn-primary">Credly Profile ↗</button></a>
               <button class="btn btn-ghost">Certificate PDF</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- 01B — Latest Achievements -->
       <div>
         <p class="section-label">01B — Latest Achievements · Cisco Networking Academy</p>
         <div class="panel">
           <div class="ach-grid">
-            <div class="ach-card">
-              <div class="ach-type">Badge · Course</div>
-              <span class="ach-icon">🏅</span>
-              <div class="ach-name">Introduction to Cybersecurity</div>
-              <div class="ach-sub">Intro to Cybersecurity</div>
-              <div class="ach-date">Issued May 01, 2026</div>
-            </div>
-            <div class="ach-card">
-              <div class="ach-type">Certificate · Course</div>
-              <span class="ach-icon">📜</span>
-              <div class="ach-name">Introduction to Cybersecurity</div>
-              <div class="ach-sub">Intro to Cybersecurity</div>
-              <div class="ach-date">Issued May 01, 2026</div>
-            </div>
-            <div class="ach-card">
-              <div class="ach-type">Achievement · Module</div>
-              <span class="ach-icon">🧠</span>
-              <div class="ach-name">Resource Specialist</div>
-              <div class="ach-sub">Intro to Cybersecurity</div>
-              <div class="ach-date">Issued May 01, 2026</div>
-            </div>
-            <div class="ach-card">
-              <div class="ach-type">Achievement · Module</div>
-              <span class="ach-icon">🔰</span>
-              <div class="ach-name">Network Defense</div>
-              <div class="ach-sub">Intro to Cybersecurity</div>
-              <div class="ach-date">Issued May 01, 2026</div>
-            </div>
-            <div class="ach-card">
-              <div class="ach-type">Achievement · Module</div>
-              <span class="ach-icon">🔒</span>
-              <div class="ach-name">System Safeguards</div>
-              <div class="ach-sub">Intro to Cybersecurity</div>
-              <div class="ach-date">Issued Apr 29, 2026</div>
-            </div>
-            <div class="ach-card">
-              <div class="ach-type">Achievement · Module</div>
-              <span class="ach-icon">🐛</span>
-              <div class="ach-name">Threat Analysis</div>
-              <div class="ach-sub">Intro to Cybersecurity</div>
-              <div class="ach-date">Issued Apr 26, 2026</div>
-            </div>
-            <div class="ach-card">
-              <div class="ach-type">Achievement · Module</div>
-              <span class="ach-icon">⚙️</span>
-              <div class="ach-name">Cybersecurity Administration</div>
-              <div class="ach-sub">Intro to Cybersecurity</div>
-              <div class="ach-date">Issued Apr 26, 2026</div>
-            </div>
+            <div class="ach-card"><div class="ach-type">Badge · Course</div><span class="ach-icon">🏅</span><div class="ach-name">Introduction to Cybersecurity</div><div class="ach-sub">Intro to Cybersecurity</div><div class="ach-date">Issued May 01, 2026</div></div>
+            <div class="ach-card"><div class="ach-type">Certificate · Course</div><span class="ach-icon">📜</span><div class="ach-name">Introduction to Cybersecurity</div><div class="ach-sub">Intro to Cybersecurity</div><div class="ach-date">Issued May 01, 2026</div></div>
+            <div class="ach-card"><div class="ach-type">Achievement · Module</div><span class="ach-icon">🧠</span><div class="ach-name">Resource Specialist</div><div class="ach-sub">Intro to Cybersecurity</div><div class="ach-date">Issued May 01, 2026</div></div>
+            <div class="ach-card"><div class="ach-type">Achievement · Module</div><span class="ach-icon">🔰</span><div class="ach-name">Network Defense</div><div class="ach-sub">Intro to Cybersecurity</div><div class="ach-date">Issued May 01, 2026</div></div>
+            <div class="ach-card"><div class="ach-type">Achievement · Module</div><span class="ach-icon">🔒</span><div class="ach-name">System Safeguards</div><div class="ach-sub">Intro to Cybersecurity</div><div class="ach-date">Issued Apr 29, 2026</div></div>
+            <div class="ach-card"><div class="ach-type">Achievement · Module</div><span class="ach-icon">🐛</span><div class="ach-name">Threat Analysis</div><div class="ach-sub">Intro to Cybersecurity</div><div class="ach-date">Issued Apr 26, 2026</div></div>
+            <div class="ach-card"><div class="ach-type">Achievement · Module</div><span class="ach-icon">⚙️</span><div class="ach-name">Cybersecurity Administration</div><div class="ach-sub">Intro to Cybersecurity</div><div class="ach-date">Issued Apr 26, 2026</div></div>
           </div>
         </div>
       </div>
 
-      <!-- 02 — In Progress -->
       <div>
         <p class="section-label">02 — In Progress</p>
         <div class="panel">
           <div class="progress-grid">
-            <div class="prog-card">
-              <span class="prog-tag in-progress">In Progress</span>
-              <h3>Python Essentials 1</h3>
-              <p>Building Python foundations for scanners, SIEM-lite logs, DLP checks, JSON reports, and dashboard automation.</p>
-            </div>
-            <div class="prog-card">
-              <span class="prog-tag active-build">Active Build</span>
-              <h3>Defensive Scanner System</h3>
-              <p>File scanner + stoplight risk logic + mini SIEM/DLP concept for educational defensive cybersecurity tooling.</p>
-            </div>
+            <div class="prog-card"><span class="prog-tag in-progress">In Progress</span><h3>Python Essentials 1</h3><p>Building Python foundations for scanners, SIEM-lite logs, DLP checks, JSON reports, and dashboard automation.</p></div>
+            <div class="prog-card"><span class="prog-tag active-build">Active Build</span><h3>Defensive Scanner System</h3><p>File scanner + stoplight risk logic + mini SIEM/DLP concept for educational defensive cybersecurity tooling.</p></div>
           </div>
         </div>
       </div>
 
-      <!-- 03 — Decision Engine -->
       <div>
         <p class="section-label">03 — Decision Engine</p>
         <article class="panel" aria-label="Threat pipeline">
-          <div class="panel-head">
-            <h2>Threat Pipeline</h2>
-            <span class="panel-chip live">Active</span>
-          </div>
+          <div class="panel-head"><h2>Threat Pipeline</h2><span class="panel-chip live">Active</span></div>
           <div class="flow-wrap">
             <div class="flow" role="list">
-              <div class="flow-node" role="listitem">Incoming File</div>
-              <span class="flow-arrow">›</span>
-              <div class="flow-node active" role="listitem">VAXINX Gate</div>
-              <span class="flow-arrow">›</span>
-              <div class="flow-node" role="listitem">Entropy + Magic Bytes</div>
-              <span class="flow-arrow">›</span>
-              <div class="flow-node" role="listitem">YARA Engine</div>
-              <span class="flow-arrow">›</span>
-              <div class="flow-node active" role="listitem">Stoplight Decision</div>
-              <span class="flow-arrow">›</span>
+              <div class="flow-node" role="listitem">Incoming File</div><span class="flow-arrow">›</span>
+              <div class="flow-node active" role="listitem">VAXINX Gate</div><span class="flow-arrow">›</span>
+              <div class="flow-node" role="listitem">Entropy + Magic Bytes</div><span class="flow-arrow">›</span>
+              <div class="flow-node" role="listitem">YARA Engine</div><span class="flow-arrow">›</span>
+              <div class="flow-node active" role="listitem">Stoplight Decision</div><span class="flow-arrow">›</span>
               <div class="flow-node" role="listitem">Quarantine Vault</div>
             </div>
             <div class="legend" role="list" aria-label="Decision legend">
-              <div class="legend-item leg-green" role="listitem">
-                <div class="leg-head"><div class="leg-dot"></div>Green</div>
-                <small>Allow — safe file, no threat indicators detected</small>
-              </div>
-              <div class="legend-item leg-yellow" role="listitem">
-                <div class="leg-head"><div class="leg-dot"></div>Yellow</div>
-                <small>Inspect — suspicious signals, manual review required</small>
-              </div>
-              <div class="legend-item leg-red" role="listitem">
-                <div class="leg-head"><div class="leg-dot"></div>Red</div>
-                <small>Quarantine — high risk, encrypted to .vxlocked vault</small>
-              </div>
+              <div class="legend-item leg-green" role="listitem"><div class="leg-head"><div class="leg-dot"></div>Green</div><small>Allow — safe file, no threat indicators detected</small></div>
+              <div class="legend-item leg-yellow" role="listitem"><div class="leg-head"><div class="leg-dot"></div>Yellow</div><small>Inspect — suspicious signals, manual review required</small></div>
+              <div class="legend-item leg-red" role="listitem"><div class="leg-head"><div class="leg-dot"></div>Red</div><small>Quarantine — high risk, encrypted to .vxlocked vault</small></div>
             </div>
           </div>
         </article>
       </div>
 
-      <!-- 04 — Scanner Controls -->
       <div>
         <p class="section-label">04 — Scanner Controls</p>
         <article class="panel">
-          <div class="panel-head">
-            <h2>Operations</h2>
-            <span class="panel-chip">CLI + API</span>
-          </div>
+          <div class="panel-head"><h2>Operations</h2><span class="panel-chip">CLI + API</span></div>
           <div class="controls-wrap">
             <button class="btn btn-primary" id="loadReportBtn" type="button">⟳ Load Scan Report</button>
             <button class="btn btn-primary" id="runScanBtn" type="button">▶ Run Live Scan</button>
             <button class="btn btn-danger" id="simulateAlertBtn" type="button">⚠ Simulate Red Alert</button>
-            <span class="status-text" id="statusText">Ready — run <code>python scanner_v3.py</code> first.</span>
+            <span class="status-text" id="statusText">Ready — run <code>py -3.12 scanner_v3.py</code> first.</span>
           </div>
         </article>
       </div>
 
-      <!-- 05 — Statistics -->
       <div>
         <p class="section-label">05 — Statistics</p>
         <div class="stats-grid" role="list" aria-label="Scan statistics">
-          <article class="stat-card" role="listitem">
-            <h3>Total Files</h3>
-            <strong id="totalFiles">—</strong>
-          </article>
-          <article class="stat-card green-b" role="listitem">
-            <h3>Green / Allow</h3>
-            <strong id="greenCount">—</strong>
-          </article>
-          <article class="stat-card yellow-b" role="listitem">
-            <h3>Yellow / Inspect</h3>
-            <strong id="yellowCount">—</strong>
-          </article>
-          <article class="stat-card red-b" role="listitem">
-            <h3>Red / Block</h3>
-            <strong id="redCount">—</strong>
-          </article>
-          <article class="stat-card" role="listitem">
-            <h3>🔐 Quarantined</h3>
-            <strong id="quarantineCount">—</strong>
-          </article>
+          <article class="stat-card" role="listitem"><h3>Total Files</h3><strong id="totalFiles">—</strong></article>
+          <article class="stat-card green-b" role="listitem"><h3>Green / Allow</h3><strong id="greenCount">—</strong></article>
+          <article class="stat-card yellow-b" role="listitem"><h3>Yellow / Inspect</h3><strong id="yellowCount">—</strong></article>
+          <article class="stat-card red-b" role="listitem"><h3>Red / Block</h3><strong id="redCount">—</strong></article>
+          <article class="stat-card" role="listitem"><h3>🔐 Quarantined</h3><strong id="quarantineCount">—</strong></article>
         </div>
       </div>
 
-      <!-- 06 — File Intelligence -->
       <div>
         <p class="section-label">06 — File Intelligence</p>
         <article class="panel">
-          <div class="panel-head">
-            <h2>Scan Report</h2>
-            <span class="panel-chip">JSON Feed</span>
-          </div>
+          <div class="panel-head"><h2>Scan Report</h2><span class="panel-chip">JSON Feed</span></div>
           <div class="table-inner">
-            <div class="table-meta">
-              Source: <code>../reports/scan_report.json</code> &nbsp;·&nbsp; Scanner: <code id="scannerVer">—</code>
-            </div>
+            <div class="table-meta">Source: <code>../reports/scan_report.json</code> &nbsp;·&nbsp; Scanner: <code id="scannerVer">—</code></div>
             <div class="table-wrap">
               <table aria-label="File intelligence report">
-                <thead>
-                  <tr>
-                    <th scope="col">Decision</th>
-                    <th scope="col">File</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Malware Hints</th>
-                    <th scope="col">Score</th>
-                    <th scope="col">Reasons</th>
-                    <th scope="col">Vault Status</th>
-                  </tr>
-                </thead>
-                <tbody id="reportBody">
-                  <tr>
-                    <td colspan="7" style="text-align:center;color:var(--text-muted);padding:40px;font-family:var(--mono);font-size:11px;letter-spacing:0.12em;">
-                      // NO REPORT LOADED — RUN SCANNER FIRST
-                    </td>
-                  </tr>
-                </tbody>
+                <thead><tr><th scope="col">Decision</th><th scope="col">File</th><th scope="col">Type</th><th scope="col">Malware Hints</th><th scope="col">Score</th><th scope="col">Reasons</th><th scope="col">Vault Status</th></tr></thead>
+                <tbody id="reportBody"><tr><td colspan="7" style="text-align:center;color:var(--text-muted);padding:40px;font-family:var(--mono);font-size:11px;letter-spacing:0.12em;">// NO REPORT LOADED — RUN SCANNER FIRST</td></tr></tbody>
               </table>
             </div>
           </div>
         </article>
       </div>
 
+      <footer class="eco-footer">
+        <div class="eco-icons">
+          <a href="https://github.com/regislara-byte" target="_blank" rel="noopener" class="eco-icon"><img src="../assets/social_icons_vectors/github-icon.svg" alt="GitHub" /></a>
+          <a href="https://ph.pinterest.com/UrLifeNuggets/" target="_blank" rel="noopener" class="eco-icon"><img src="../assets/social_icons_vectors/pinterest-icon.svg" alt="Pinterest" /></a>
+          <a href="https://www.teepublic.com/user/urlifenuggets" target="_blank" rel="noopener" class="eco-icon"><img src="../assets/social_icons_vectors/teepublic-icon.svg" alt="TeePublic" /></a>
+          <a href="https://open.spotify.com/user/urlifenuggets" target="_blank" rel="noopener" class="eco-icon"><img src="../assets/social_icons_vectors/spotify-icon.svg" alt="Spotify" /></a>
+          <a href="https://discord.gg/XGZrGZ32p" target="_blank" rel="noopener" class="eco-icon"><img src="../assets/social_icons_vectors/discord-icon.svg" alt="Discord" /></a>
+          <a href="https://www.instagram.com/urlifenuggets/" target="_blank" rel="noopener" class="eco-icon"><img src="../assets/social_icons_vectors/instagram-icon.svg" alt="Instagram" /></a>
+        </div>
+        <div class="eco-text">VAXINX Protocol™ · VLA Powered · Cyber Awareness UI</div>
+      </footer>
     </main>
   </div>
 
-  <!-- Red Alert Banner -->
-  <div id="alertBanner" class="alert-banner hidden" role="alert" aria-live="assertive" aria-atomic="true" aria-hidden="true">
-    ⚠ RED ALERT — QUARANTINE MODE ENGAGED ⚠
-  </div>
+  <div id="alertBanner" class="alert-banner hidden" role="alert" aria-live="assertive" aria-atomic="true" aria-hidden="true">⚠ RED ALERT — QUARANTINE MODE ENGAGED ⚠</div>
 
   <script>
-    const REPORT_PATH = "reports/scan_report.json";
+    const REPORT_PATH = "../reports/scan_report.json";
     const $ = (id) => document.getElementById(id);
 
     function setText(id, value) {
-      const el = $(id); if (el) el.textContent = value;
+      const el = $(id);
+      if (el) el.textContent = value;
     }
 
     function badge(decision) {
-      const map = { RED: 'badge-red', YELLOW: 'badge-yellow', GREEN: 'badge-green' };
-      const cls = map[decision] || 'badge-green';
-      return `<span class="badge ${cls}"><span class="dot"></span>${decision}</span>`;
+      const map = { RED: "badge-red", YELLOW: "badge-yellow", GREEN: "badge-green" };
+      const cls = map[decision] || "badge-green";
+      return `<span class="badge ${cls}"><span class="dot"></span>${decision || "GREEN"}</span>`;
     }
 
     function renderReport(report) {
@@ -810,11 +400,11 @@
         const q = item.quarantine || {};
         const reasons = (item.reasons || []).slice(0, 3).join(" · ");
         const hints = (item.malware_hints || []).slice(0, 2).join(" · ");
-        const qStatus = q.status === "QUARANTINED" ? `🔐 VAULTED` : q.status || "NOT_REQUIRED";
+        const qStatus = q.status === "QUARANTINED" ? "🔐 VAULTED" : q.status || "NOT_REQUIRED";
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${badge(item.stoplight)}</td>
-          <td>${item.name}</td>
+          <td>${item.name || "—"}</td>
           <td>${item.file_type || "—"}</td>
           <td>${hints || "—"}</td>
           <td>${item.score ?? 0}</td>
@@ -824,14 +414,14 @@
         tbody.appendChild(row);
       });
 
-      $("statusText").innerHTML = `Loaded <code>${REPORT_PATH}</code> · Scanner <code>${report.version}</code>`;
+      $("statusText").innerHTML = `Loaded <code>${REPORT_PATH}</code> · Scanner <code>${report.version || "—"}</code>`;
     }
 
     async function loadReport() {
       try {
         $("statusText").textContent = "Loading scan report…";
         const response = await fetch(REPORT_PATH, { cache: "no-store" });
-        if (!response.ok) throw new Error("Report not found. Run python scanner_v3.py first.");
+        if (!response.ok) throw new Error("Report not found. Run py -3.12 scanner_v3.py first.");
         const report = await response.json();
         renderReport(report);
       } catch (error) {
@@ -845,68 +435,32 @@
       $("statusText").textContent = "⚠ Simulated RED ALERT mode engaged.";
     }
 
-    $("loadReportBtn")?.addEventListener("click", loadReport);
-    $("simulateAlertBtn")?.addEventListener("click", simulateRedAlert);
+    async function runLiveScan() {
+      const status = $("statusText");
+      status.textContent = "Running live scan...";
 
-    loadReport();
+      try {
+        const response = await fetch("/api/scan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ path: "test_lab", dry_run: false })
+        });
 
-function runLiveScan() {
-  const status = document.getElementById("statusText");
-  status.textContent = "Running live scan...";
+        if (!response.ok) throw new Error("Live API not available. Run scanner_v3.py --serve locally.");
+        await response.json();
+        status.textContent = "Scan completed. Loading report...";
+        setTimeout(loadReport, 1500);
+      } catch (error) {
+        status.textContent = "ERROR: " + error.message;
+      }
+    }
 
-  fetch("/api/scan", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      path: "test_lab",
-      dry_run: false
-    })
-  })
-  .then(res => res.json())
-  .then(data => {
-    status.textContent = "Scan completed. Loading report...";
-    setTimeout(loadReport, 1500); // ✅ NO RELOAD
-  })
-  .catch(err => {
-    status.textContent = "ERROR: " + err.message;
-  });
-}
-  // 🔥 THIS is your line (attach button → function)
     document.addEventListener("DOMContentLoaded", () => {
-  document.getElementById("runScanBtn")
-    ?.addEventListener("click", runLiveScan);
-});
-
-<div class="eco-icons">
-
-<a href="https://github.com/regislara-byte" target="_blank" class="eco-icon">
-  <img src="../assets/social_icons_vectors/github-icon.svg" alt="GitHub" />
-</a>
-
-<a href="https://ph.pinterest.com/UrLifeNuggets/" target="_blank" class="eco-icon">
-  <img src="../assets/social_icons_vectors/pinterest-icon.svg" alt="Pinterest" />
-</a>
-
-<a href="https://www.teepublic.com/user/urlifenuggets" target="_blank" class="eco-icon">
-  <img src="../assets/social_icons_vectors/teepublic-icon.svg" alt="TeePublic" />
-</a>
-
-<a href="https://open.spotify.com/user/urlifenuggets" target="_blank" class="eco-icon">
-  <img src="../assets/social_icons_vectors/spotify-icon.svg" alt="Spotify" />
-</a>
-
-<a href="https://discord.gg/XGZrGZ32p" target="_blank" class="eco-icon">
-  <img src="../assets/social_icons_vectors/discord-icon.svg" alt="Discord" />
-</a>
-
-<a href="https://www.instagram.com/urlifenuggets/" target="_blank" class="eco-icon">
-  <img src="../assets/social_icons_vectors/instagram-icon.svg" alt="Instagram" />
-</a>
-
-</div>
-
-</script>
+      $("loadReportBtn")?.addEventListener("click", loadReport);
+      $("simulateAlertBtn")?.addEventListener("click", simulateRedAlert);
+      $("runScanBtn")?.addEventListener("click", runLiveScan);
+      loadReport();
+    });
+  </script>
 </body>
 </html>
