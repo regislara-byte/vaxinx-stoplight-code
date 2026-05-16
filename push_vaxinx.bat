@@ -33,6 +33,6 @@ echo ===============================
 echo.
 
 start "" "https://github.com/regislara-byte/vaxinx-ai-scanner"
-start "" "https://github.com/regislara-byte/vaxinx-ai-scanner/dashboard/index.html"
+start "" "https://github.com/regislara-byte/vaxinx-ai-scanner/vaxinx-stoplight-code/dashboard/index.html"
 
 pause
